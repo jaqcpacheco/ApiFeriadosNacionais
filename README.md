@@ -125,6 +125,6 @@ Durante os testes são demonstrados os códigos HTTP **200 OK**, **201 Created**
 
 ## Vídeo de demonstração
 
-**Link:** será adicionado após a gravação e publicação do vídeo.
+**Link:** https://drive.google.com/drive/folders/1YPcv5V94_TsAEOJ2wuo_pDwgtfF7-bpE?usp=sharing
 
 O vídeo apresenta a estrutura do projeto, a execução da API e os testes das operações CRUD utilizando o Postman.
