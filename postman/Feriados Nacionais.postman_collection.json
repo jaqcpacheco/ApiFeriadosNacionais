@@ -1,0 +1,41 @@
+{
+  "info": {
+    "_postman_id": "f0cbaeb4-6647-4c55-90f8-d6ff059e2072",
+    "name": "Feriados Nacionais",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48726847",
+    "_collection_link": "https://go.postman.co/collection/48726847-f0cbaeb4-6647-4c55-90f8-d6ff059e2072?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Feriados Nacionais ",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"id\": 11,\r\n    \"nome\": \"Dia dos Professores\",\r\n    \"data\": \"15/10/2026\",\r\n    \"tipo\": \"Facultativo\"\r\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5050/api/feriados",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5050",
+          "path": [
+            "api",
+            "feriados"
+          ]
+        },
+        "description": "Lista de Feriados Nacionais"
+      },
+      "response": []
+    }
+  ]
+}
