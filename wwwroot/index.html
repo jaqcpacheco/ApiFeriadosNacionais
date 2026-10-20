@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Feriados Nacionais - Gerenciador</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="header-title">Feriados Nacionais</h1>
+        <p class="header-subtitle">Integração com API REST (.NET 10)</p>
+      </div>
+      <div class="api-status-container">
+        <span id="api-status-badge" class="api-status-badge checking" role="status" aria-live="polite">
+          Verificando API...
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <main class="main-layout">
+      <!-- Seção do Formulário (Cadastro / Edição) -->
+      <section class="card form-section" aria-labelledby="form-heading">
+        <div class="form-header">
+          <h2 id="form-heading" class="card-title">Cadastrar Novo Feriado</h2>
+          <span id="edit-badge" class="edit-badge" hidden>Modo Edição</span>
+        </div>
+        <p id="form-description" class="card-description">
+          Preencha os campos para salvar um feriado diretamente na API.
+        </p>
+
+        <!-- Mensagens de Feedback Acessíveis -->
+        <div id="feedback-message" class="feedback-box" role="status" aria-live="polite" hidden></div>
+
+        <form id="holiday-form" novalidate>
+          <!-- Campo oculto para ID (usado na edição) -->
+          <input type="hidden" id="holiday-id" name="id" value="">
+
+          <div class="form-group">
+            <label for="holiday-name" class="form-label">
+              Nome do Feriado <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="holiday-name" 
+              name="nome" 
+              class="form-input" 
+              placeholder="Ex: Tiradentes" 
+              required
+              aria-describedby="holiday-name-help"
+            >
+            <span id="holiday-name-help" class="form-help">Nome oficial do feriado.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="holiday-date" class="form-label">
+              Data do Feriado <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input 
+              type="date" 
+              id="holiday-date" 
+              name="data" 
+              class="form-input" 
+              required
+              aria-describedby="holiday-date-help"
+            >
+            <span id="holiday-date-help" class="form-help">Data de comemoração (DD/MM/AAAA).</span>
+          </div>
+
+          <div class="form-group">
+            <label for="holiday-type" class="form-label">
+              Classificação / Tipo <span class="required" aria-hidden="true">*</span>
+            </label>
+            <select 
+              id="holiday-type" 
+              name="tipo" 
+              class="form-select" 
+              required
+              aria-describedby="holiday-type-help"
+            >
+              <option value="">Selecione o tipo...</option>
+              <option value="Nacional">Nacional</option>
+              <option value="Estadual">Estadual</option>
+              <option value="Municipal">Municipal</option>
+              <option value="Facultativo">Facultativo</option>
+            </select>
+            <span id="holiday-type-help" class="form-help">Tipo do feriado registrado na API.</span>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="btn-submit" class="btn btn-primary">
+              Cadastrar Feriado
+            </button>
+            <button type="button" id="btn-cancel-edit" class="btn btn-secondary" hidden>
+              Cancelar Edição
+            </button>
+            <button type="reset" id="btn-reset" class="btn btn-subtle">
+              Limpar Campos
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Seção da Lista de Feriados -->
+      <section class="card list-section" aria-labelledby="list-heading">
+        <div class="list-header">
+          <div>
+            <h2 id="list-heading" class="card-title">Feriados Cadastrados</h2>
+            <p class="card-description">Registros sincronizados em tempo real com a API.</p>
+          </div>
+          <div class="list-controls">
+            <button type="button" id="btn-reload" class="btn btn-secondary btn-sm" title="Recarregar dados da API">
+              &#x21bb; Atualizar Lista
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-controls">
+          <label for="filter-type" class="filter-label">Filtrar por tipo:</label>
+          <select id="filter-type" class="form-select form-select-sm">
+            <option value="todos">Todos os tipos</option>
+            <option value="Nacional">Nacional</option>
+            <option value="Estadual">Estadual</option>
+            <option value="Municipal">Municipal</option>
+            <option value="Facultativo">Facultativo</option>
+          </select>
+          <div class="stats-summary" id="stats-summary" aria-label="Estatísticas de feriados"></div>
+        </div>
+
+        <!-- Mensagem de Carregamento -->
+        <div id="loading-state" class="state-banner" role="status" aria-live="polite">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Carregando dados da API...</span>
+        </div>
+
+        <!-- Mensagem de Lista Vazia -->
+        <div id="empty-state" class="state-banner empty" hidden>
+          <p>Nenhum feriado cadastrado na API no momento.</p>
+        </div>
+
+        <!-- Mensagem de Erro na Listagem -->
+        <div id="error-state" class="state-banner error" hidden>
+          <p id="error-state-message">Não foi possível carregar os dados da API.</p>
+          <button type="button" id="btn-retry" class="btn btn-secondary btn-sm">Tentar novamente</button>
+        </div>
+
+        <!-- Tabela de Feriados -->
+        <div class="table-container" id="table-container" tabindex="0" aria-label="Tabela de feriados com rolagem horizontal se necessário">
+          <table class="holiday-table">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Data</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Tipo</th>
+                <th scope="col" class="th-actions">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="holidays-tbody">
+              <!-- Linhas geradas dinamicamente com textContent no app.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>API Feriados Nacionais &bull; Endpoints: <code>GET /api/feriados</code>, <code>POST /api/feriados</code>, <code>PUT /api/feriados/{id}</code>, <code>DELETE /api/feriados/{id}</code></p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
