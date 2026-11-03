@@ -1,130 +1,239 @@
-# API Feriados Nacionais
+# API Feriados Nacionais — AP2
+
+**Autora:** Jaqueline Pacheco
 
 ## Sobre o projeto
 
-Esta API REST foi desenvolvida como atividade acadêmica utilizando ASP.NET Core e .NET 10.
+Projeto acadêmico desenvolvido com ASP.NET Core e .NET 10, com o tema Feriados Nacionais.
 
-O tema escolhido foi **Feriados Nacionais**, tendo como recurso principal os feriados nacionais brasileiros de 2026.
+Esta entrega evolui o mesmo projeto e repositório da AP1. A lista em memória foi substituída pela persistência em SQLite utilizando Entity Framework Core.
 
-A API permite listar, buscar, cadastrar, atualizar e remover feriados por meio de requisições HTTP.
+A aplicação permite cadastrar, listar, buscar por ID, atualizar e excluir feriados. O frontend está no mesmo projeto e realiza as operações por meio dos endpoints reais da API.
 
-Os dados são armazenados somente em memória utilizando uma `List<Feriado>`. Portanto, alterações realizadas durante a execução, como cadastros, atualizações e exclusões, são perdidas quando a aplicação é encerrada ou reiniciada.
+Os registros não excluídos continuam disponíveis após reiniciar a aplicação.
 
-## Tecnologias utilizadas
+## Tecnologias
 
-* .NET 10
-* ASP.NET Core
-* Minimal API
-* C#
-* Postman
+- C# e .NET 10
+- ASP.NET Core Minimal API
+- Entity Framework Core 10
+- SQLite
+- HTML, CSS e JavaScript
+- Postman
+
+## Organização do projeto
+
+- `Program.cs`: configuração da aplicação, rotas, Model e DbContext.
+- `Migrations/`: migrations para criar a estrutura do banco.
+- `wwwroot/`: frontend com HTML, CSS e JavaScript.
+- `postman/`: Collection com as requisições de teste.
+- `appsettings.Development.json`: configuração da conexão SQLite no ambiente de desenvolvimento.
+- `ApiFeriadosNacionais.csproj`: configuração e dependências do projeto.
 
 ## Requisitos
 
-Para executar o projeto é necessário possuir o **SDK do .NET 10** instalado.
+- SDK do .NET 10.
+- Ferramenta de linha de comando do Entity Framework Core 10.
+- Postman para executar a Collection.
+- Navegador atualizado.
 
-Para verificar a versão instalada:
+Confira o SDK instalado:
 
-```bash
+```powershell
 dotnet --version
 ```
 
-## Como executar
+Caso ainda não tenha a ferramenta do Entity Framework Core, instale:
 
-Clone o repositório e acesse a pasta do projeto.
+```powershell
+dotnet tool install --global dotnet-ef --version 10.0.12
+```
 
-Restaure e compile o projeto:
+Confira a instalação:
 
-```bash
+```powershell
+dotnet ef --version
+```
+
+## Preparação e execução
+
+### 1. Clonar o repositório
+
+```powershell
+git clone https://github.com/jaqcpacheco/ApiFeriadosNacionais.git
+cd ApiFeriadosNacionais
+```
+
+### 2. Restaurar e compilar
+
+```powershell
+dotnet restore
 dotnet build
 ```
 
-Execute a API utilizando a porta `5050`:
+### 3. Preparar o banco de dados
 
-```bash
+No PowerShell, defina o ambiente de desenvolvimento para utilizar a conexão configurada em `appsettings.Development.json`:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+dotnet ef database update
+```
+
+Esse comando aplica as migrations versionadas e cria o banco SQLite local `api-feriados-nacionais.db`.
+
+A conexão utilizada é:
+
+```text
+Data Source=api-feriados-nacionais.db
+```
+
+O banco local e seus arquivos auxiliares não são versionados. Cada pessoa deve preparar o banco utilizando as migrations.
+
+### 4. Iniciar a aplicação
+
+```powershell
 dotnet run --urls http://localhost:5050
 ```
 
-A API estará disponível em:
+Mantenha o terminal aberto durante o uso.
 
-`http://localhost:5050`
+## Como abrir a interface
 
-## Endpoints
+Com a aplicação em execução, acesse:
 
-| Método | Rota                 | Descrição                               |
-| ------ | -------------------- | --------------------------------------- |
-| GET    | `/`                  | Verifica se a API está em funcionamento |
-| GET    | `/api/feriados`      | Lista todos os feriados                 |
-| GET    | `/api/feriados/{id}` | Busca um feriado pelo ID                |
-| POST   | `/api/feriados`      | Cadastra um novo feriado                |
-| PUT    | `/api/feriados/{id}` | Atualiza um feriado existente           |
-| DELETE | `/api/feriados/{id}` | Remove um feriado                       |
+http://localhost:5050/index.html
 
-## Exemplo de POST
+A interface é servida pela própria API, na mesma origem. Não é necessário executar outro servidor para o frontend.
 
-Endpoint:
+Pela interface, é possível:
 
-`POST /api/feriados`
+- Listar os feriados armazenados no banco.
+- Cadastrar um feriado.
+- Editar um feriado existente.
+- Excluir um feriado.
+- Atualizar a lista.
+- Filtrar os registros por tipo.
 
-Body JSON:
+O JavaScript utiliza `fetch` para acessar `/api/feriados`. Os dados apresentados são obtidos da API real.
+
+## Modelo de dados
+
+A entidade `FeriadosNacionaisEntity` possui os seguintes campos:
+
+| Campo | Tipo | Descrição |
+| --- | --- | --- |
+| `id` | inteiro | Identificador gerado pelo banco |
+| `nome` | texto | Nome do feriado |
+| `data` | texto | Data no formato DD/MM/AAAA |
+| `tipo` | texto | Classificação do feriado |
+
+O `ApiDbContext` disponibiliza o conjunto `Feriados`. As operações de criação, atualização e exclusão são gravadas com `SaveChangesAsync()`.
+
+## Rotas da API
+
+URL base: `http://localhost:5050`
+
+| Método | Rota | Operação | Resposta de sucesso |
+| --- | --- | --- | --- |
+| GET | `/api/feriados` | Listar todos | 200 OK |
+| GET | `/api/feriados/{id}` | Buscar por ID | 200 OK |
+| POST | `/api/feriados` | Cadastrar | 201 Created |
+| PUT | `/api/feriados/{id}` | Atualizar | 200 OK |
+| DELETE | `/api/feriados/{id}` | Excluir | 204 No Content |
+
+As operações de busca por ID, atualização e exclusão retornam `404 Not Found` quando o registro não existe.
+
+### Exemplo de cadastro
+
+```http
+POST http://localhost:5050/api/feriados
+Content-Type: application/json
+```
 
 ```json
 {
-  "nome": "Exemplo de Feriado",
-  "data": "10/08/2026",
+  "nome": "Feriado de teste AP2",
+  "data": "15/11/2026",
   "tipo": "Nacional"
 }
 ```
 
-Quando o cadastro é realizado com sucesso, a API retorna o código HTTP **201 Created** e os dados do novo registro.
+Não é necessário enviar o campo `id`: ele é gerado pelo banco.
 
-## Exemplo de PUT
+### Exemplo de atualização
 
-Endpoint:
+Substitua `{id}` pelo identificador retornado no cadastro.
 
-`PUT /api/feriados/{id}`
-
-Body JSON:
+```http
+PUT http://localhost:5050/api/feriados/{id}
+Content-Type: application/json
+```
 
 ```json
 {
-  "nome": "Feriado Atualizado",
-  "data": "10/08/2026",
-  "tipo": "Nacional"
+  "nome": "Feriado atualizado AP2",
+  "data": "15/11/2026",
+  "tipo": "Facultativo"
 }
 ```
-
-Quando o registro é encontrado e atualizado, a API retorna **200 OK**.
-
-Caso o ID informado não exista, a API retorna **404 Not Found**.
-
-## Armazenamento dos dados
-
-Esta aplicação não utiliza banco de dados.
-
-Os registros são armazenados em uma `List<Feriado>` em memória. Dessa forma, qualquer cadastro, alteração ou exclusão realizada durante os testes será perdida quando a aplicação for reiniciada.
 
 ## Testes com Postman
 
-As requisições utilizadas para testar a API foram organizadas em uma Collection do Postman.
+A Collection está disponível em:
 
-O arquivo exportado da Collection está disponível na pasta:
+[Collection do Postman](postman/Feriados%20Nacionais.postman_collection.json)
 
-`postman/`
+Com a aplicação em execução, importe esse arquivo no Postman e execute as requisições na seguinte ordem:
 
-A Collection contém testes para:
+1. Cadastrar um feriado — retorno `201`.
+2. Listar os feriados — retorno `200`.
+3. Buscar o feriado pelo ID — retorno `200`.
+4. Atualizar o feriado — retorno `200`.
+5. Consultar novamente para conferir a alteração.
+6. Excluir o feriado — retorno `204`.
+7. Consultar o ID excluído — retorno `404`.
 
-* verificar se a API está no ar;
-* listar os feriados;
-* buscar um feriado pelo ID;
-* cadastrar um novo feriado;
-* atualizar um feriado;
-* remover um feriado;
-* confirmar a remoção por meio de uma resposta `404 Not Found`.
+O POST armazena o ID criado na variável de Collection `feriadoId`, utilizada nas requisições seguintes.
 
-Durante os testes são demonstrados os códigos HTTP **200 OK**, **201 Created**, **204 No Content** e **404 Not Found**.
+## Teste pelo navegador
 
-## Vídeo de demonstração
+1. Abra `http://localhost:5050/index.html`.
+2. Cadastre um feriado e confira sua presença na lista.
+3. Edite o registro e confira a alteração.
+4. Consulte o mesmo registro no Postman para confirmar a integração.
+5. Exclua o registro pela interface e confira sua remoção.
 
-**Link:** https://drive.google.com/drive/folders/1YPcv5V94_TsAEOJ2wuo_pDwgtfF7-bpE?usp=sharing
+## Teste de persistência
 
-O vídeo apresenta a estrutura do projeto, a execução da API e os testes das operações CRUD utilizando o Postman.
+1. Cadastre um registro pela interface.
+2. Mantenha esse registro salvo, sem excluí-lo.
+3. Pare a aplicação com `Ctrl+C`.
+4. Execute novamente:
+
+```powershell
+dotnet run --urls http://localhost:5050
+```
+
+5. Atualize a página do navegador.
+6. Confira que o registro continua disponível.
+
+Esse procedimento comprova que os dados estão armazenados no SQLite e permanecem disponíveis após reiniciar a API.
+
+## Vídeo de demonstração — AP2
+**Link público:**   https://drive.google.com/file/d/1gS69cSXvWJ5nOzDfEf-JzAz0soT1y_Hf/view?usp=sharing
+
+O vídeo demonstra:
+
+- Organização e execução do projeto.
+- CRUD no Postman e códigos de resposta HTTP.
+- Resposta `404` após excluir um registro.
+- Cadastro, listagem, edição e exclusão pelo frontend.
+- Confirmação de um dado da interface pela API.
+- Persistência de um registro após reiniciar a aplicação.
+
+O link deve permitir acesso sem solicitação de autorização e ser testado em janela anônima.
+
+## Repositório
+
+https://github.com/jaqcpacheco/ApiFeriadosNacionais
