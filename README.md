@@ -149,7 +149,7 @@ O Postman foi utilizado como alternativa ao Bruno devido a limitações de armaz
 
 ## 11. Vídeo de demonstração — AS
 
-Link do vídeo: 
+Link do vídeo: https://drive.google.com/file/d/1wLVGY2xuN7KnxIghz2n5s9ikZDk8l_TL/view?usp=sharing
 
 ## 12. Autora
 
