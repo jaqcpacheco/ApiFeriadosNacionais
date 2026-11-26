@@ -1,4 +1,8 @@
+
 using Microsoft.EntityFrameworkCore;
+using ApiFeriadosNacionais.Models;
+using ApiFeriadosNacionais.Dtos;
+using ApiFeriadosNacionais.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +20,20 @@ app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        await context.Response.WriteAsJsonAsync(new
+        {
+            mensagem = "Ocorreu um erro interno. Tente novamente mais tarde."
+        });
+    });
+});
+
 // Rota raiz
 app.MapGet("/", () =>
 {
@@ -27,9 +45,16 @@ app.MapGet("/", () =>
 
 // Cadastrar novo feriado no banco de dados
 app.MapPost("/api/feriados", async (
-    FeriadosNacionaisEntity feriado,
+    FeriadoInput entrada,
     ApiDbContext db) =>
 {
+    var feriado = new FeriadosNacionaisEntity
+    {
+        Nome = entrada.Nome,
+        Data = entrada.Data,
+        Tipo = entrada.Tipo
+    };
+
     db.Feriados.Add(feriado);
 
     await db.SaveChangesAsync();
@@ -40,20 +65,20 @@ app.MapPost("/api/feriados", async (
     );
 });
 
-
+// Buscar feriado por ID
 app.MapGet("/api/feriados/{id:int}", async (int id, ApiDbContext db) =>
 {
     var feriado = await db.Feriados.FindAsync(id);
-    if (feriado is null) {return Results.NotFound();}
+    if (feriado is null) { return Results.NotFound(); }
 
     return Results.Ok(feriado);
 });
 
-// Listar 
-app.MapPut("/api/feriados/{id:int}", async (int id, FeriadosNacionaisEntity entrada, ApiDbContext db) =>
+// Atualizar feriado
+app.MapPut("/api/feriados/{id:int}", async (int id, FeriadoInput entrada, ApiDbContext db) =>
 {
     var feriado = await db.Feriados.FindAsync(id);
-    if (feriado is null) {return Results.NotFound();}
+    if (feriado is null) { return Results.NotFound(); }
 
     feriado.Nome = entrada.Nome;
     feriado.Data = entrada.Data;
@@ -63,17 +88,16 @@ app.MapPut("/api/feriados/{id:int}", async (int id, FeriadosNacionaisEntity entr
     return Results.Ok(feriado);
 });
 
-// Listar feriados deletados
+// Excluir feriado
 app.MapDelete("/api/feriados/{id:int}", async (int id, ApiDbContext db) =>
 {
     var feriado = await db.Feriados.FindAsync(id);
-    if (feriado is null) {return Results.NotFound();}
+    if (feriado is null) { return Results.NotFound(); }
 
     db.Feriados.Remove(feriado);
     await db.SaveChangesAsync();
     return Results.NoContent();
 });
-
 
 // Listar todos os feriados do banco de dados
 app.MapGet("/api/feriados", async (ApiDbContext db) =>
@@ -81,27 +105,3 @@ app.MapGet("/api/feriados", async (ApiDbContext db) =>
 );
 
 app.Run();
-
-
-class FeriadosNacionaisEntity
-{
-    public int Id { get; set; }
-
-    public string Nome { get; set; } = string.Empty;
-
-    public string Data { get; set; } = string.Empty;
-
-    public string Tipo { get; set; } = string.Empty;
-}
-
-
-class ApiDbContext : DbContext
-{
-    public ApiDbContext(DbContextOptions<ApiDbContext> options)
-        : base(options)
-    {
-    }
-
-    public DbSet<FeriadosNacionaisEntity> Feriados =>
-        Set<FeriadosNacionaisEntity>();
-}

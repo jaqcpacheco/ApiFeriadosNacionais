@@ -1,239 +1,158 @@
-# API Feriados Nacionais — AP2
+# API de Feriados Nacionais — AS
 
-**Autora:** Jaqueline Pacheco
+## 1. Tema e objetivo
 
-## Sobre o projeto
+O projeto consiste em uma API REST para gerenciamento de feriados, desenvolvida com ASP.NET Core e Entity Framework Core, utilizando SQLite para persistência dos dados.
 
-Projeto acadêmico desenvolvido com ASP.NET Core e .NET 10, com o tema Feriados Nacionais.
+A aplicação permite cadastrar, consultar, atualizar e excluir feriados, além de disponibilizar uma interface web integrada à API.
 
-Esta entrega evolui o mesmo projeto e repositório da AP1. A lista em memória foi substituída pela persistência em SQLite utilizando Entity Framework Core.
+Nesta etapa, o projeto foi reorganizado para melhorar a separação de responsabilidades, a manutenção e a organização do código.
 
-A aplicação permite cadastrar, listar, buscar por ID, atualizar e excluir feriados. O frontend está no mesmo projeto e realiza as operações por meio dos endpoints reais da API.
+## 2. Tecnologias utilizadas
 
-Os registros não excluídos continuam disponíveis após reiniciar a aplicação.
-
-## Tecnologias
-
-- C# e .NET 10
+- C#
+- .NET 10
 - ASP.NET Core Minimal API
-- Entity Framework Core 10
+- Entity Framework Core
 - SQLite
 - HTML, CSS e JavaScript
 - Postman
+- Git e GitHub
 
-## Organização do projeto
+## 3. Pré-requisitos
 
-- `Program.cs`: configuração da aplicação, rotas, Model e DbContext.
-- `Migrations/`: migrations para criar a estrutura do banco.
-- `wwwroot/`: frontend com HTML, CSS e JavaScript.
-- `postman/`: Collection com as requisições de teste.
-- `appsettings.Development.json`: configuração da conexão SQLite no ambiente de desenvolvimento.
-- `ApiFeriadosNacionais.csproj`: configuração e dependências do projeto.
+- .NET SDK 10
+- Git
+- Postman para execução das requisições HTTP
 
-## Requisitos
+## 4. Como executar o projeto
 
-- SDK do .NET 10.
-- Ferramenta de linha de comando do Entity Framework Core 10.
-- Postman para executar a Collection.
-- Navegador atualizado.
+Clone o repositório:
 
-Confira o SDK instalado:
-
-```powershell
-dotnet --version
-```
-
-Caso ainda não tenha a ferramenta do Entity Framework Core, instale:
-
-```powershell
-dotnet tool install --global dotnet-ef --version 10.0.12
-```
-
-Confira a instalação:
-
-```powershell
-dotnet ef --version
-```
-
-## Preparação e execução
-
-### 1. Clonar o repositório
-
-```powershell
+```bash
 git clone https://github.com/jaqcpacheco/ApiFeriadosNacionais.git
+```
+
+Acesse a pasta:
+
+```bash
 cd ApiFeriadosNacionais
 ```
 
-### 2. Restaurar e compilar
+Restaure as dependências:
 
-```powershell
+```bash
 dotnet restore
+```
+
+Compile o projeto:
+
+```bash
 dotnet build
 ```
 
-### 3. Preparar o banco de dados
+Execute a aplicação:
 
-No PowerShell, defina o ambiente de desenvolvimento para utilizar a conexão configurada em `appsettings.Development.json`:
-
-```powershell
-$env:ASPNETCORE_ENVIRONMENT = "Development"
-dotnet ef database update
-```
-
-Esse comando aplica as migrations versionadas e cria o banco SQLite local `api-feriados-nacionais.db`.
-
-A conexão utilizada é:
-
-```text
-Data Source=api-feriados-nacionais.db
-```
-
-O banco local e seus arquivos auxiliares não são versionados. Cada pessoa deve preparar o banco utilizando as migrations.
-
-### 4. Iniciar a aplicação
-
-```powershell
+```bash
 dotnet run --urls http://localhost:5050
 ```
 
-Mantenha o terminal aberto durante o uso.
-
-## Como abrir a interface
-
-Com a aplicação em execução, acesse:
+A interface web estará disponível em:
 
 http://localhost:5050/index.html
 
-A interface é servida pela própria API, na mesma origem. Não é necessário executar outro servidor para o frontend.
+## 5. Organização do projeto
 
-Pela interface, é possível:
-
-- Listar os feriados armazenados no banco.
-- Cadastrar um feriado.
-- Editar um feriado existente.
-- Excluir um feriado.
-- Atualizar a lista.
-- Filtrar os registros por tipo.
-
-O JavaScript utiliza `fetch` para acessar `/api/feriados`. Os dados apresentados são obtidos da API real.
-
-## Modelo de dados
-
-A entidade `FeriadosNacionaisEntity` possui os seguintes campos:
-
-| Campo | Tipo | Descrição |
-| --- | --- | --- |
-| `id` | inteiro | Identificador gerado pelo banco |
-| `nome` | texto | Nome do feriado |
-| `data` | texto | Data no formato DD/MM/AAAA |
-| `tipo` | texto | Classificação do feriado |
-
-O `ApiDbContext` disponibiliza o conjunto `Feriados`. As operações de criação, atualização e exclusão são gravadas com `SaveChangesAsync()`.
-
-## Rotas da API
-
-URL base: `http://localhost:5050`
-
-| Método | Rota | Operação | Resposta de sucesso |
-| --- | --- | --- | --- |
-| GET | `/api/feriados` | Listar todos | 200 OK |
-| GET | `/api/feriados/{id}` | Buscar por ID | 200 OK |
-| POST | `/api/feriados` | Cadastrar | 201 Created |
-| PUT | `/api/feriados/{id}` | Atualizar | 200 OK |
-| DELETE | `/api/feriados/{id}` | Excluir | 204 No Content |
-
-As operações de busca por ID, atualização e exclusão retornam `404 Not Found` quando o registro não existe.
-
-### Exemplo de cadastro
-
-```http
-POST http://localhost:5050/api/feriados
-Content-Type: application/json
+```text
+ApiFeriadosNacionais/
+├── Data/
+│   └── ApiDbContext.cs
+├── Dtos/
+│   └── FeriadoInput.cs
+├── Migrations/
+├── models/
+│   └── FeriadosNacionaisEntity.cs
+├── postman/
+│   └── ApiFeriadosNacionais.postman_collection.json
+├── wwwroot/
+├── Program.cs
+├── appsettings.json
+├── ApiFeriadosNacionais.csproj
+├── ApiFeriadosNacionais.postman_collection.json
+├── .gitignore
+└── README.md
 ```
+
+### Responsabilidades
+
+- **Models:** entidade que representa os feriados no banco de dados.
+- **Dtos:** estrutura responsável pelo recebimento dos dados nas requisições.
+- **Data:** contexto do Entity Framework Core e acesso ao banco de dados.
+- **Migrations:** gerenciamento da estrutura do banco de dados.
+- **wwwroot:** interface web integrada à API.
+- **Program.cs:** configuração dos serviços, middlewares e endpoints.
+- **appsettings.json:** configurações da aplicação e conexão com o banco de dados.
+
+## 6. Endpoints
+
+| Método | Rota | Descrição | Status |
+|---|---|---|---|
+| GET | /api/feriados | Listar feriados | 200 |
+| GET | /api/feriados/{id} | Consultar feriado | 200 ou 404 |
+| POST | /api/feriados | Cadastrar feriado | 201 |
+| PUT | /api/feriados/{id} | Atualizar feriado | 200 ou 404 |
+| DELETE | /api/feriados/{id} | Excluir feriado | 204 ou 404 |
+
+## 7. Exemplos de requisições
+
+### POST — Cadastro
 
 ```json
 {
-  "nome": "Feriado de teste AP2",
-  "data": "15/11/2026",
-  "tipo": "Nacional"
+    "nome": "Natal",
+    "data": "25/12/2026",
+    "tipo": "Nacional"
 }
 ```
 
-Não é necessário enviar o campo `id`: ele é gerado pelo banco.
-
-### Exemplo de atualização
-
-Substitua `{id}` pelo identificador retornado no cadastro.
-
-```http
-PUT http://localhost:5050/api/feriados/{id}
-Content-Type: application/json
-```
+### PUT — Atualização
 
 ```json
 {
-  "nome": "Feriado atualizado AP2",
-  "data": "15/11/2026",
-  "tipo": "Facultativo"
+    "nome": "Feriado Atualizado",
+    "data": "26/12/2026",
+    "tipo": "Municipal"
 }
 ```
 
-## Testes com Postman
+O identificador é informado na URL nas operações de consulta individual, atualização e exclusão.
 
-A Collection está disponível em:
+## 8. Persistência dos dados
 
-[Collection do Postman](postman/Feriados%20Nacionais.postman_collection.json)
+A aplicação utiliza SQLite em conjunto com o Entity Framework Core.
 
-Com a aplicação em execução, importe esse arquivo no Postman e execute as requisições na seguinte ordem:
+Os dados cadastrados permanecem armazenados mesmo após o encerramento e a reinicialização da aplicação.
 
-1. Cadastrar um feriado — retorno `201`.
-2. Listar os feriados — retorno `200`.
-3. Buscar o feriado pelo ID — retorno `200`.
-4. Atualizar o feriado — retorno `200`.
-5. Consultar novamente para conferir a alteração.
-6. Excluir o feriado — retorno `204`.
-7. Consultar o ID excluído — retorno `404`.
+## 9. Tratamento de erros
 
-O POST armazena o ID criado na variável de Collection `feriadoId`, utilizada nas requisições seguintes.
+A aplicação possui middleware de tratamento de exceções e utiliza códigos de status HTTP adequados para representar os resultados das operações.
 
-## Teste pelo navegador
+## 10. Collection de testes
 
-1. Abra `http://localhost:5050/index.html`.
-2. Cadastre um feriado e confira sua presença na lista.
-3. Edite o registro e confira a alteração.
-4. Consulte o mesmo registro no Postman para confirmar a integração.
-5. Exclua o registro pela interface e confira sua remoção.
+As requisições HTTP estão organizadas no arquivo:
 
-## Teste de persistência
+`postman/ApiFeriadosNacionais.postman_collection.json`
 
-1. Cadastre um registro pela interface.
-2. Mantenha esse registro salvo, sem excluí-lo.
-3. Pare a aplicação com `Ctrl+C`.
-4. Execute novamente:
+Para utilizá-las, importe o arquivo no Postman.
 
-```powershell
-dotnet run --urls http://localhost:5050
-```
+O Postman foi utilizado como alternativa ao Bruno devido a limitações de armazenamento no ambiente de desenvolvimento.
 
-5. Atualize a página do navegador.
-6. Confira que o registro continua disponível.
+## 11. Vídeo de demonstração — AS
 
-Esse procedimento comprova que os dados estão armazenados no SQLite e permanecem disponíveis após reiniciar a API.
+Link do vídeo: 
 
-## Vídeo de demonstração — AP2
-**Link público:**   https://drive.google.com/file/d/1gS69cSXvWJ5nOzDfEf-JzAz0soT1y_Hf/view?usp=sharing
+## 12. Autora
 
-O vídeo demonstra:
+Jaqueline da Costa Pacheco
 
-- Organização e execução do projeto.
-- CRUD no Postman e códigos de resposta HTTP.
-- Resposta `404` após excluir um registro.
-- Cadastro, listagem, edição e exclusão pelo frontend.
-- Confirmação de um dado da interface pela API.
-- Persistência de um registro após reiniciar a aplicação.
-
-O link deve permitir acesso sem solicitação de autorização e ser testado em janela anônima.
-
-## Repositório
-
-https://github.com/jaqcpacheco/ApiFeriadosNacionais
+Curso de Análise e Desenvolvimento de Sistemas.

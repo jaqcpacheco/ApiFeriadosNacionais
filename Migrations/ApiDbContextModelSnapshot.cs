@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
+using ApiFeriadosNacionais.Data;
 #nullable disable
 
 namespace ApiFeriadosNacionais.Migrations
